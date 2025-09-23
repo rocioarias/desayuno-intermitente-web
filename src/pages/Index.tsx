@@ -1,7 +1,7 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
-import Team from "@/components/Team";
 import Weather from "@/components/Weather";
+import Team from "@/components/Team";
 import Highlights from "@/components/Highlights";
 import Footer from "@/components/Footer";
 
@@ -11,8 +11,8 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
-        <Team />
         <Weather />
+        <Team />
         <Highlights />
       </main>
       <Footer />

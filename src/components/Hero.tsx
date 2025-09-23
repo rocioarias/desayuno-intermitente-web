@@ -24,7 +24,7 @@ const Hero = () => {
           <Coffee className="text-secondary w-10 h-10 animate-pulse" />
         </div>
         
-        <h1 className="font-display text-7xl md:text-9xl text-primary-foreground mb-4 tracking-tight animate-fade-in drop-shadow-2xl">
+        <h1 className="font-display text-6xl md:text-8xl text-primary-foreground mb-4 tracking-tight animate-fade-in drop-shadow-2xl">
           DESAYUNO INTERMITENTE
         </h1>
         
@@ -46,13 +46,14 @@ const Hero = () => {
             size="lg"
             variant="outline"
             className="bg-primary-foreground/10 backdrop-blur-sm border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/20 font-semibold px-8 py-6 text-lg"
+            onClick={() => document.getElementById('clima')?.scrollIntoView({ behavior: 'smooth' })}
           >
-            EN VIVO DE LUNES A VIERNES
+            🌤️ VER EL CLIMA DE FEDE
           </Button>
         </div>
         
         <div className="mt-8 text-primary-foreground/80 font-medium animate-fade-in animation-delay-600">
-          <p className="text-lg">🔴 9:00 AM - 12:00 PM</p>
+          <p className="text-lg">🔴 EN VIVO DE LUNES A VIERNES | 9:00 AM - 12:00 PM</p>
         </div>
       </div>
       
