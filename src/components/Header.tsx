@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Menu, X, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
+import logoBlender from "@/assets/blender-logo.jpg";
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -33,37 +33,24 @@ const Header = () => {
     >
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-2">
-            <Mic className="text-primary w-8 h-8" />
-            <span className="font-display text-2xl text-foreground">
-              DESAYUNO INTERMITENTE
-            </span>
-          </div>
-          
-          {/* Desktop Navigation */}
+                  <img 
+          src={logoBlender} 
+          alt="Logo blender"
+          className="w-10 h-10 rounded-full object-cover mr-3"
+        />
+
           <nav className="hidden md:flex items-center gap-8">
-            <button 
-              onClick={() => scrollToSection("equipo")}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Equipo
-            </button>
+            
             <button 
               onClick={() => scrollToSection("clima")}
               className="text-foreground hover:text-primary transition-colors font-medium"
             >
               El Clima
             </button>
-            <button 
-              onClick={() => scrollToSection("destacados")}
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Videos
-            </button>
+           
             <Button 
               className="bg-primary hover:bg-primary-dark text-primary-foreground font-semibold"
-              onClick={() => window.open('https://www.youtube.com/@blenderok', '_blank')}
+              onClick={() => window.open('https://www.youtube.com/@estoesblender', '_blank')}
             >
               EN VIVO
             </Button>
@@ -78,30 +65,20 @@ const Header = () => {
           </button>
         </div>
         
-        {/* Mobile Navigation */}
+
         {isMobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 flex flex-col gap-4">
-            <button 
-              onClick={() => scrollToSection("equipo")}
-              className="text-foreground hover:text-primary transition-colors font-medium text-left"
-            >
-              Equipo
-            </button>
+          
             <button 
               onClick={() => scrollToSection("clima")}
               className="text-foreground hover:text-primary transition-colors font-medium text-left"
             >
               El Clima
             </button>
-            <button 
-              onClick={() => scrollToSection("destacados")}
-              className="text-foreground hover:text-primary transition-colors font-medium text-left"
-            >
-              Videos
-            </button>
+            
             <Button 
               className="bg-primary hover:bg-primary-dark text-primary-foreground font-semibold w-full"
-              onClick={() => window.open('https://www.youtube.com/@blenderok', '_blank')}
+              onClick={() => window.open('https://www.youtube.com/@estoesblender', '_blank')}
             >
               EN VIVO
             </Button>

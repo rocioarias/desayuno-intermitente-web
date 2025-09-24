@@ -16,10 +16,6 @@ const Weather = () => {
           <p className="text-3xl font-bold text-primary-foreground/90 mb-4">
             ⭐ La única verdad meteorológica ⭐
           </p>
-          <p className="text-xl text-primary-foreground/80 max-w-3xl mx-auto">
-            Buscá cualquier ciudad del mundo y obtené el pronóstico con el análisis exclusivo 
-            y el humor característico de Fede Simonetti
-          </p>
         </div>
         
         <WeatherSearch />

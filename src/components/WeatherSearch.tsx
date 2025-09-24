@@ -62,13 +62,13 @@ const weatherCodeToCondition = (code: number): string => {
 };
 
 const getFedeComment = (temp: number, code: number): string => {
-  if (temp > 35) return "Más calor que discusión política en asado familiar";
+  if (temp > 35) return "Totalmente Hooooooot";
   if (temp > 30) return "Se viene el verano eterno de Macri";
-  if (temp > 25) return "Temperatura ideal para tomarse un Aperol en Puerto Madero";
-  if (temp > 20) return "Clima perfecto para debatir en Twitter";
-  if (temp > 15) return "Fresco como las excusas del gobierno";
-  if (temp > 10) return "Frío pero bancable, como las encuestas";
-  if (temp > 5) return "Más frío que la relación con el FMI";
+  if (temp > 25) return "Clima ideal para que Manu Jove vaya al gimnasio";
+  if (temp > 20) return "Esta agradable como para ver TropoDolce";
+  if (temp > 15) return "Fresco para 3 camperas";
+  if (temp > 10) return "Clima perfecto para que Manu Jove compre Chipa";
+  if (temp > 5) return "Más frío que culo de pinguino";
   if (temp > 0) return "Temperatura de freezer político";
   return "Más frío que la mirada de tu ex";
 };
@@ -217,7 +217,7 @@ const WeatherSearch = () => {
           <div className="p-8">
             <div className="flex items-start justify-between mb-6">
               <div>
-                <h3 className="font-display text-4xl text-foreground mb-2">
+                <h3 className="font-display text-4xl  mb-2">
                   {weather.city}
                 </h3>
                 <p className="text-muted-foreground text-lg">{weather.country}</p>
@@ -229,7 +229,7 @@ const WeatherSearch = () => {
               <div className="flex items-center gap-3">
                 <Thermometer className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-4xl font-bold text-foreground">{weather.temperature}°</p>
+                  <p className="text-4xl font-bold ">{weather.temperature}°</p>
                   <p className="text-sm text-muted-foreground">Temperatura</p>
                 </div>
               </div>
@@ -237,7 +237,7 @@ const WeatherSearch = () => {
               <div className="flex items-center gap-3">
                 <Wind className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">{weather.windspeed} km/h</p>
+                  <p className="text-2xl font-semibold ">{weather.windspeed} km/h</p>
                   <p className="text-sm text-muted-foreground">Viento</p>
                 </div>
               </div>
@@ -245,14 +245,14 @@ const WeatherSearch = () => {
               <div className="flex items-center gap-3">
                 <Droplets className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">{weather.humidity}%</p>
+                  <p className="text-2xl font-semibold">{weather.humidity}%</p>
                   <p className="text-sm text-muted-foreground">Humedad</p>
                 </div>
               </div>
             </div>
 
             <div className="border-t border-border pt-6">
-              <p className="text-xl font-semibold text-foreground mb-2">
+              <p className="text-xl font-semibold  mb-2">
                 {weatherCodeToCondition(weather.weathercode)}
               </p>
               <p className="text-lg italic text-primary">
@@ -267,9 +267,9 @@ const WeatherSearch = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { name: "Buenos Aires", latitude: -34.6131, longitude: -58.3772, country: "Argentina" },
-          { name: "Córdoba", latitude: -31.4135, longitude: -64.1810, country: "Argentina" },
-          { name: "Rosario", latitude: -32.9442, longitude: -60.6505, country: "Argentina" },
-          { name: "Mendoza", latitude: -32.8895, longitude: -68.8458, country: "Argentina" },
+          { name: "Quilmes", latitude: -34.7242, longitude: -58.2526, country: "Argentina" },
+          { name: "Rosario", latitude: -32.9442, longitude: -60.6505,  country: "Argentina" },
+          { name: "Funes", latitude: -32.91, longitude: -60.8107, country: "Argentina" },
         ].map((city) => (
           <Button
             key={city.name}
