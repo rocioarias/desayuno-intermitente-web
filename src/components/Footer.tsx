@@ -55,15 +55,6 @@ const Footer = () => {
                 <Youtube className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
               </a>
             </div>
-            <div className="pt-4">
-              <a 
-                href="mailto:desayuno@blender.com.ar"
-                className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors"
-              >
-                <Mail className="w-4 h-4" />
-                desayuno@blender.com.ar
-              </a>
-            </div>
           </div>
         </div>
         
