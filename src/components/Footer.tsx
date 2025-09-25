@@ -22,7 +22,7 @@ const Footer = () => {
             <h3 className="font-display text-xl text-foreground">BLENDER</h3>
             <div className="space-y-2">
               <a 
-                href="https://www.youtube.com/@blenderok" 
+                href="https://www.youtube.com/@estoesblender" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="block text-muted-foreground hover:text-primary transition-colors"

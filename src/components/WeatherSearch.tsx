@@ -64,12 +64,12 @@ const weatherCodeToCondition = (code: number): string => {
 
 const getFedeComment = (temp: number, code: number): string => {
   if (temp > 35) return "Totalmente Hooooooot";
-  if (temp > 30) return "Se viene el verano eterno de Macri";
-  if (temp > 25) return "Clima ideal para que Manu Jove vaya al gimnasio";
+  if (temp > 30) return "Ideal para que Caputo se tire a tomar sol";
+  if (temp > 25) return "Deberia ser ilegal salir con este calor";
   if (temp > 20) return "Esta agradable como para ver TropoDolce";
   if (temp > 15) return "Fresco para 3 camperas";
-  if (temp > 10) return "Clima perfecto para que Manu Jove compre Chipa";
-  if (temp > 5) return "Más frío que culo de pinguino";
+  if (temp > 10) return "Perfecto para comprarle sanguchitos a Eli";
+  if (temp > 5) return "Fresco para 3 camperas";
   if (temp > 0) return "Temperatura de freezer político";
   return "Más frío que la mirada de tu ex";
 };

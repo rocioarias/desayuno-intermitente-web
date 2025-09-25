@@ -140,9 +140,12 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
 
   return (
     <Card className="p-6 bg-card/50 backdrop-blur border-primary/20">
-      <h3 className="text-2xl font-display mb-4 text-primary">
-        🗺️ Búsqueda por Mapa (OpenStreetMap)
+      <h3 className="text-2xl font-display mb-4 text-white">
+        🗺️ Búsqueda por Mapa 
       </h3>
+      <p className="font-display mb-4 text-2xl ">
+        Como sugerencia del chat, agregué un mapa interactivo. Asi que ahora ya no hay excusasssss. 
+      </p>
       
       <div className="space-y-4">
         {/* Buscador de lugares */}
