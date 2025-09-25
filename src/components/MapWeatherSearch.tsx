@@ -144,7 +144,7 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
         🗺️ Búsqueda por Mapa 
       </h3>
       <p className="font-display mb-4 text-2xl ">
-        Como sugerencia del chat, agregué un mapa interactivo. Asi que ahora ya no hay excusasssss. 
+        Como sugerencia del chat, agregué un mapa interactivo donde podes pinchar en el mapa y te dice la temperatura de la locación exacta. Asi que ahora ya no hay excusasssss. 
       </p>
       
       <div className="space-y-4">
