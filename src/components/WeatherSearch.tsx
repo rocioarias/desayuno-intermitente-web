@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import MapWeatherSearch from "./MapWeatherSearch";
 
 interface City {
   id: number;
@@ -166,6 +167,40 @@ const WeatherSearch = () => {
     }
   };
 
+  // Obtener clima por coordenadas (para el mapa)
+  const fetchWeatherByCoordinates = async (latitude: number, longitude: number, placeName?: string) => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`
+      );
+      const data = await response.json();
+      
+      setWeather({
+        temperature: Math.round(data.current.temperature_2m),
+        windspeed: Math.round(data.current.wind_speed_10m),
+        humidity: data.current.relative_humidity_2m,
+        weathercode: data.current.weather_code,
+        city: placeName || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`,
+        country: "Coordenadas",
+      });
+      
+      toast({
+        title: "¡Clima actualizado!",
+        description: `Datos del clima en ${placeName || "la ubicación seleccionada"}`,
+      });
+    } catch (error) {
+      console.error("Error obteniendo clima:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo obtener el clima para esas coordenadas",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const WeatherIcon = weather ? weatherCodeToIcon(weather.weathercode) : Cloud;
 
   return (
@@ -282,6 +317,9 @@ const WeatherSearch = () => {
           </Button>
         ))}
       </div>
+
+      {/* Búsqueda por mapa como alternativa */}
+      <MapWeatherSearch onLocationSelect={fetchWeatherByCoordinates} />
     </div>
   );
 };
