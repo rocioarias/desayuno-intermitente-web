@@ -17,6 +17,8 @@ interface City {
 
 interface WeatherData {
   temperature: number;
+  temperatureMin: number;
+  temperatureMax: number;
   windspeed: number;
   humidity: number;
   weathercode: number;
@@ -134,12 +136,14 @@ const WeatherSearch = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
       );
       const data = await response.json();
       
       setWeather({
         temperature: Math.round(data.current.temperature_2m),
+        temperatureMin: Math.round(data.daily.temperature_2m_min[0]),
+        temperatureMax: Math.round(data.daily.temperature_2m_max[0]),
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
@@ -172,12 +176,14 @@ const WeatherSearch = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
       );
       const data = await response.json();
       
       setWeather({
         temperature: Math.round(data.current.temperature_2m),
+        temperatureMin: Math.round(data.daily.temperature_2m_min[0]),
+        temperatureMax: Math.round(data.daily.temperature_2m_max[0]),
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
@@ -264,8 +270,13 @@ const WeatherSearch = () => {
               <div className="flex items-center gap-3">
                 <Thermometer className="w-8 h-8 text-primary" />
                 <div>
-                  <p className="text-4xl font-bold ">{weather.temperature}°</p>
-                  <p className="text-sm text-muted-foreground">Temperatura</p>
+                  <p className="text-2xl font-bold">
+                    <span className="text-blue-500">{weather.temperatureMin}°</span>
+                    <span className="text-muted-foreground mx-2">/</span>
+                    <span className="text-red-500">{weather.temperatureMax}°</span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">Mín / Máx de hoy</p>
+                  <p className="text-lg font-medium mt-1">Actual: {weather.temperature}°</p>
                 </div>
               </div>
 
