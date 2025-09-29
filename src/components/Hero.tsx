@@ -35,7 +35,7 @@ const Hero = () => {
         </div>
         
         <div className="mt-8 text-primary-foreground/80 font-medium animate-fade-in animation-delay-600">
-          <p className="text-lg">🔴 EN VIVO DE LUNES A VIERNES | 9:00 AM - 10:00 AM</p>
+          <p className="text-lg">🔴 EN VIVO DE LUNES A VIERNES | 8:00 AM - 10:00 AM</p>
         </div>
       </div>
       
