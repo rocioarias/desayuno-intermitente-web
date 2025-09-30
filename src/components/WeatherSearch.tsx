@@ -65,16 +65,75 @@ const weatherCodeToCondition = (code: number): string => {
 };
 
 const getFedeComment = (temp: number, code: number): string => {
-  if (temp > 35) return "Totalmente Hooooooot";
-  if (temp > 30) return "Ideal para que Caputo se tire a tomar sol";
-  if (temp > 25) return "Deberia ser ilegal salir con este calor";
-  if (temp > 20) return "Esta agradable como para ver TropoDolce";
-  if (temp > 15) return "Fresco para 3 camperas";
-  if (temp > 10) return "Perfecto para comprarle sanguchitos a Eli";
-  if (temp > 5) return "Fresco para 3 camperas";
-  if (temp > 0) return "Temperatura de freezer político";
-  return "Más frío que la mirada de tu ex";
-};
+  let quotes: string[] = [];
+
+if (temp > 35) {
+    quotes = [
+      "⚠️ ¡Alerta Extrema de Calor! Evitá el sol entre las 10h y 16h. Buscá refugio fresco.",
+      "💧 Hidratación es Clave: Tomá agua frecuentemente, incluso sin sed. Bebidas frescas sin alcohol.",
+      "👕 Usá ropa muy ligera y de colores claros. Cubrite la cabeza con gorra o sombrero.",
+      "❄️ Tomá duchas o baños fríos. Evitá esfuerzos físicos intensos al aire libre."
+    ];
+  } else if (temp > 30) {
+    quotes = [
+      "🔥 Calor Fuerte. Mantenete a la sombra. Un golpe de calor puede ser peligroso.",
+      "🧴 Aplicá protector solar (SPF 30+) cada 2 horas si estás afuera.",
+      "🍽️ Comé alimentos ligeros y frescos (frutas y verduras) para ayudar a tu cuerpo a regularse.",
+      "🏠 Mantené las persianas y ventanas cerradas durante el día para conservar el fresco interior."
+    ];
+  } else if (temp > 25) {
+    quotes = [
+      "☀️ Día Caluroso. Es ideal para actividades al aire libre, pero con precaución. USA PROTECTOR.",
+      "🥤 No olvides tu botella de agua. La hidratación sigue siendo importante.",
+      "🕶️ Usá gafas de sol con protección UV. La vista también necesita cuidado.",
+      "🌬️ Buscá la brisa, pero recordá que el sol quema; aplicá protector solar en la piel expuesta."
+    ];
+  } else if (temp > 20) {
+    quotes = [
+      "🌸 Clima Agradable. Ideal para disfrutar de unos mates abajo del sol. Podés usar ropa cómoda y liviana.",
+      "🏃 Si hacés ejercicio, elegí las primeras o últimas horas del día. Mantenete hidratado.",
+      "🌳 Un buen momento para ventilar tu casa y dejar entrar el aire fresco.",
+      "👚 Manga corta y pantalón corto son perfectos. Considerá una camperita ligera por si refresca al bajar el sol."
+    ];
+  } else if (temp > 15) {
+    quotes = [
+      "⛅ Media Estación. Un clima muy confortable, sali a pasear sin problema.",
+      "🧥 Llevá un buzo o campera fina que puedas quitar si sube la temperatura. Vestite en capas.",
+      "🧣 No es necesario, pero un saquito ligero puede ser útil contra el viento fresco.",
+      "🏠 Abrí las ventanas al mediodía para ventilar y cerralas por la tarde para conservar el calor."
+    ];
+  } else if (temp > 10) {
+    quotes = [
+      "🌬️ Fresquito Moderado. Se siente el cambio. Necesitás un abrigo de media estación.",
+      "🧤 Usá una campera o un sweater grueso. Las manos y el cuello pueden sentir el frío.",
+      "☕ Disfrutá de bebidas calientes (té, café, mate) para mantener la temperatura corporal.",
+      "👟 Elegí calzado cerrado y medias; el suelo frío puede bajar tu temperatura."
+    ];
+  } else if (temp > 5) {
+    quotes = [
+      "🥶 Frío Leve. El frío ya se nota. Es momento de abrigarse bien, especialmente al salir.",
+      "🧢 Cubrite la cabeza, orejas y manos. Usá gorro y guantes ligeros.",
+      "🧣 No olvides un buen abrigo, campera gruesa y una bufanda para proteger el cuello.",
+      "🏡 Revisá los cierres de ventanas y puertas para evitar que entre aire frío a la casa."
+    ];
+  } else if (temp > 0) {
+    quotes = [
+      "❄️ Frío Intenso. El riesgo de resfrío e hipotermia aumenta. La protección es esencial.",
+      "🧤 Capas de ropa son tu mejor aliado (térmica, polar, campera). El aire entre ellas aísla.",
+      "♨️ Mantené la calefacción a una temperatura confortable (idealmente entre 19°C y 21°C).",
+      "👟 Usá medias gruesas y, si vas a estar mucho tiempo afuera, calzado impermeable."
+    ];
+  } else { // temp <= 0
+    quotes = [
+      "🧊 ¡Peligro de Heladas! Temperatura bajo cero. Minimizá la exposición al exterior.",
+      "🛡️ Abrigo total: Doble capa de medias, guantes, gorro de lana, bufanda y campera invernal.",
+      "♨️ Si usás estufas, ventilá brevemente cada tanto para renovar el aire y evitar la acumulación de gases.",
+      "🚗 En caso de nieve o hielo, conducí con extrema precaución y verificá el estado de los neumáticos."
+    ];
+  }
+
+  return quotes.length > 0 ? quotes[Math.floor(Math.random() * quotes.length)] : "El clima es un misterio.";
+}
 
 const WeatherSearch = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -237,7 +296,7 @@ const WeatherSearch = () => {
                 <div>
                   <span className="font-medium">{city.name}</span>
                   {city.admin1 && <span className="text-muted-foreground"> - {city.admin1}</span>}
-                  <span className="text-muted-foreground text-sm"> ({city.country})</span>
+                  <span className="text-muted-foreground text-sm"> ({city.admin1}, {city.country})</span>
                 </div>
               </button>
             ))}
