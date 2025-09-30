@@ -24,6 +24,7 @@ interface WeatherData {
   weathercode: number;
   city: string;
   country: string;
+  admin1?: string;
 }
 
 const weatherCodeToIcon = (code: number) => {
@@ -208,6 +209,7 @@ const WeatherSearch = () => {
         weathercode: data.current.weather_code,
         city: city.name,
         country: city.country,
+        admin1: city.admin1,
       });
       
       setSelectedCity(city);
@@ -295,8 +297,9 @@ const WeatherSearch = () => {
                 <MapPin className="w-4 h-4 text-muted-foreground" />
                 <div>
                   <span className="font-medium">{city.name}</span>
-                  {city.admin1 && <span className="text-muted-foreground"> - {city.admin1}</span>}
-                  <span className="text-muted-foreground text-sm"> ({city.admin1}, {city.country})</span>
+                  <span className="text-muted-foreground text-sm">
+                    {city.admin1 && ` - ${city.admin1},`} {city.country}
+                  </span>
                 </div>
               </button>
             ))}
@@ -320,7 +323,9 @@ const WeatherSearch = () => {
                 <h3 className="font-display text-4xl  mb-2">
                   {weather.city}
                 </h3>
-                <p className="text-muted-foreground text-lg">{weather.country}</p>
+                <p className="text-muted-foreground text-lg">
+                  {weather.admin1 && `${weather.admin1}, `}{weather.country}
+                </p>
               </div>
               <WeatherIcon className="w-20 h-20 text-primary" />
             </div>
