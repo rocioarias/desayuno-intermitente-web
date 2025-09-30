@@ -7,6 +7,7 @@ import { MapPin, Search, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "@/styles/leaflet-overrides.css";
 
 // Fix para los iconos de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -194,12 +195,13 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
         </div>
         
         {/* Mapa */}
-        <div className="h-[400px] rounded-lg overflow-hidden border border-border">
+        <div className="h-[400px] rounded-lg overflow-hidden border border-border relative">
           <MapContainer
             center={[-34.6037, -58.3816]} // Buenos Aires por defecto
             zoom={10}
-            style={{ height: "100%", width: "100%" }}
+            style={{ height: "100%", width: "100%", zIndex: 0 }}
             ref={mapRef}
+            className="leaflet-container"
           >
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

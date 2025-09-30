@@ -1,0 +1,68 @@
+/* Leaflet CSS overrides para compatibilidad con Tailwind */
+.leaflet-container {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  background: hsl(var(--card));
+  color: hsl(var(--card-foreground));
+  border-radius: var(--radius);
+}
+
+.leaflet-popup-tip {
+  background: hsl(var(--card));
+}
+
+.leaflet-control {
+  border: 2px solid hsl(var(--border));
+  background: hsl(var(--card));
+}
+
+.leaflet-control a {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+}
+
+.leaflet-control a:hover {
+  background: hsl(var(--muted));
+}
+
+/* Fix para z-index de controles */
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 500 !important;
+}
+
+.leaflet-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-tile-pane {
+  z-index: 200 !important;
+}
+
+.leaflet-overlay-pane {
+  z-index: 400 !important;
+}
+
+.leaflet-shadow-pane {
+  z-index: 500 !important;
+}
+
+.leaflet-marker-pane {
+  z-index: 600 !important;
+}
+
+.leaflet-tooltip-pane {
+  z-index: 650 !important;
+}
+
+.leaflet-popup-pane {
+  z-index: 700 !important;
+}
+
+.leaflet-control {
+  z-index: 800 !important;
+}
