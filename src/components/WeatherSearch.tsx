@@ -37,7 +37,7 @@ const weatherCodeToIcon = (code: number) => {
 
 const weatherCodeToCondition = (code: number): string => {
   const conditions: { [key: number]: string } = {
-    0: "Despejado como la mente de Fede",
+    0: "Despejado",
     1: "Mayormente despejado",
     2: "Parcialmente nublado",
     3: "Nublado",
@@ -365,8 +365,8 @@ const WeatherSearch = () => {
               <p className="text-xl font-semibold  mb-2">
                 {weatherCodeToCondition(weather.weathercode)}
               </p>
-              <p className="text-lg italic text-primary">
-                "{getFedeComment(weather.temperature, weather.weathercode)}"
+              <p className="text-lg text-muted-foreground">
+                {searchTerm == "" ? getFedeComment(weather.temperature, weather.weathercode) : null}
               </p>
             </div>
           </div>
