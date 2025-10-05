@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2, Info } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MapWeatherSearch from "./MapWeatherSearch";
 
@@ -143,7 +144,17 @@ const WeatherSearch = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showInfoDialog, setShowInfoDialog] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Mostrar el popup informativo al cargar la página (solo la primera vez)
+  useEffect(() => {
+    const hasSeenInfo = localStorage.getItem("weatherSearchInfoSeen");
+    if (!hasSeenInfo) {
+      setShowInfoDialog(true);
+      localStorage.setItem("weatherSearchInfoSeen", "true");
+    }
+  }, []);
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -282,17 +293,46 @@ const WeatherSearch = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8">
+      {/* Dialog informativo */}
+      <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Info className="w-5 h-5 text-primary" />
+              Información sobre el buscador
+            </DialogTitle>
+            <DialogDescription className="text-base pt-4">
+              Debido a que hay lugares que no se encuentran de manera rápida en el buscador, por favor usá el buscador por mapa para encontrar la ciudad exacta en caso de no estar en el buscador de clima. Hacé click en el lugar y te dará la temperatura en ese lugar.
+            </DialogDescription>
+          </DialogHeader>
+          <Button onClick={() => setShowInfoDialog(false)} className="w-full">
+            Entendido
+          </Button>
+        </DialogContent>
+      </Dialog>
+
       {/* Buscador */}
       <div className="relative" ref={dropdownRef}>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-          <Input
-            type="text"
-            placeholder="Buscá tu ciudad... (ej: Buenos Aires, Córdoba, Rosario)"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-6 text-lg bg-card/50 backdrop-blur border-primary/20 focus:border-primary"
-          />
+        <div className="relative flex gap-2">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+            <Input
+              type="text"
+              placeholder="Buscá tu ciudad... (ej: Buenos Aires, Córdoba, Rosario)"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-4 py-6 text-lg bg-card/50 backdrop-blur border-primary/20 focus:border-primary"
+            />
+          </div>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowInfoDialog(true)}
+            className="h-auto px-3 bg-card/50 border-primary/20 hover:bg-primary/10"
+            title="Información sobre el buscador"
+          >
+            <Info className="w-5 h-5" />
+          </Button>
         </div>
 
         {/* Dropdown de ciudades */}
