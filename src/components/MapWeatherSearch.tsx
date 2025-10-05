@@ -93,7 +93,7 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
     
     const delayDebounceFn = setTimeout(() => {
       executeSearch(searchTerm);
-    }, 500); 
+    }, 300); 
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm]); // Re-ejecutar cuando cambia el término de búsqueda
 
@@ -236,7 +236,7 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
           )}
         </div>
         
-        {/* Botones de control de capas */}
+        {/* Botones de control de capas 
         <div className="flex gap-2 justify-center">
           <Button
             variant={mapLayer === "normal" ? "default" : "outline"}
@@ -266,7 +266,7 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
             Lluvias
           </Button>
         </div>
-
+*/}
         {/* Mapa */}
         <div className="h-[400px] rounded-lg overflow-hidden border border-border relative">
           <MapContainer

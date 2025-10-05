@@ -387,7 +387,7 @@ const WeatherSearch = () => {
         )}
       </div>
 
-      {/* Ciudades destacadas */}
+      {/* Ciudades destacadas 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
           { name: "Buenos Aires", latitude: -34.6131, longitude: -58.3772, country: "Argentina" },
@@ -406,6 +406,7 @@ const WeatherSearch = () => {
           </Button>
         ))}
       </div>
+      */}
     </div>
   );
 };
