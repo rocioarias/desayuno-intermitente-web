@@ -276,23 +276,39 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
             ref={mapRef}
             className="leaflet-container"
           >
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {mapLayer === "wind" && (
+            {mapLayer === "normal" && (
               <TileLayer
-                attribution='Wind data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
-                url="https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=439d4b804bc8187953eb36d2a8c26a02"
-                opacity={0.6}
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
               />
             )}
+            {mapLayer === "wind" && (
+              <>
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <TileLayer
+                  attribution='Wind data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
+                  url="https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=439d4b804bc8187953eb36d2a8c26a02"
+                  opacity={0.5}
+                  key="wind-layer"
+                />
+              </>
+            )}
             {mapLayer === "rain" && (
-              <TileLayer
-                attribution='Precipitation data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
-                url="https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=439d4b804bc8187953eb36d2a8c26a02"
-                opacity={0.6}
-              />
+              <>
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <TileLayer
+                  attribution='Rain data &copy; <a href="https://www.rainviewer.com">RainViewer</a>'
+                  url="https://tilecache.rainviewer.com/v2/radar/0/{z}/{x}/{y}/256/1_1.png"
+                  opacity={0.6}
+                  key="rain-layer"
+                />
+              </>
             )}
             <MapClickHandler onLocationClick={handleMapClick} />
             {position && <Marker position={position} />}
