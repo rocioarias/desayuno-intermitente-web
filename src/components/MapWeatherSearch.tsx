@@ -9,11 +9,10 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "@/styles/leaflet-overrides.css";
 
-// Fix para los iconos de Leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  iconUrl: "https://cdnjs-cloudflare-com.translate.goog/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
@@ -47,7 +46,55 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
   const mapRef = useRef<L.Map | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar resultados al hacer clic fuera
+  const executeSearch = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5`
+      );
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        setSearchResults(data);
+        setShowResults(true);
+      } else {
+        setSearchResults([]);
+        setShowResults(true); 
+      }
+    } catch (error) {
+      console.error("Error buscando lugar:", error);
+      toast({
+        title: "Error",
+        description: "No se pudo buscar el lugar",
+        variant: "destructive",
+      });
+      setSearchResults([]);
+      setShowResults(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      setShowResults(false);
+      return;
+    }
+    
+    const delayDebounceFn = setTimeout(() => {
+      executeSearch(searchTerm);
+    }, 500); 
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]); // Re-ejecutar cuando cambia el término de búsqueda
+
+ 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (resultsRef.current && !resultsRef.current.contains(event.target as Node)) {
@@ -59,38 +106,11 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Buscar lugares con Nominatim (OpenStreetMap)
-  const searchPlace = async () => {
-    if (!searchTerm.trim()) return;
-
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=5`
-      );
-      const data = await response.json();
-      
-      if (data && data.length > 0) {
-        setSearchResults(data);
-        setShowResults(true);
-      } else {
-        toast({
-          title: "Sin resultados",
-          description: "No se encontraron lugares con ese nombre",
-        });
-      }
-    } catch (error) {
-      console.error("Error buscando lugar:", error);
-      toast({
-        title: "Error",
-        description: "No se pudo buscar el lugar",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+  // Función para la búsqueda manual (botón o Enter)
+  const handleManualSearch = () => {
+    executeSearch(searchTerm);
   };
-
+  
   // Seleccionar un resultado de búsqueda
   const selectSearchResult = (result: SearchResult) => {
     const lat = parseFloat(result.lat);
@@ -98,7 +118,7 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
     
     setPosition([lat, lng]);
     setShowResults(false);
-    setSearchTerm("");
+    setSearchTerm(result.display_name); // Opcional: llenar el input con el nombre del lugar
     
     // Centrar el mapa en la nueva posición
     if (mapRef.current) {
@@ -112,11 +132,13 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
     });
   };
 
-  // Manejar click en el mapa
+
   const handleMapClick = async (lat: number, lng: number) => {
     setPosition([lat, lng]);
+    setSearchTerm("");
+    setShowResults(false);
     
-    // Geocoding reverso para obtener el nombre del lugar
+    
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`
@@ -142,10 +164,12 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
   return (
     <Card className="p-6 bg-card/50 backdrop-blur border-primary/20">
       <h3 className="text-2xl font-display mb-4 text-white">
-        🗺️ Búsqueda por Mapa 
+        Buscá el clima sin problemas 
       </h3>
       <p className="font-display mb-4 text-2xl ">
-        Como sugerencia del chat, agregué un mapa interactivo donde podes pinchar en el mapa y te dice la temperatura de la locación exacta. Asi que ahora ya no hay excusasssss. 
+          
+          Recuerden que el mapa es interactivo, pueden hacer click en él para ver la temperatura en el lugar exacto
+
       </p>
       
       <div className="space-y-4">
@@ -158,13 +182,14 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
                 type="text"
                 placeholder="Buscar lugar en el mapa..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && searchPlace()}
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                onKeyPress={(e) => e.key === "Enter" && handleManualSearch()}
                 className="pl-10"
               />
             </div>
+            {/* Botón de búsqueda manual */}
             <Button 
-              onClick={searchPlace}
+              onClick={handleManualSearch}
               disabled={loading || !searchTerm.trim()}
             >
               {loading ? (
@@ -176,20 +201,34 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
           </div>
           
           {/* Resultados de búsqueda */}
-          {showResults && searchResults.length > 0 && (
+          {showResults && (
             <Card className="absolute top-full mt-2 w-full z-[1000] p-2 bg-card/95 backdrop-blur border-primary/20 max-h-60 overflow-y-auto">
-              {searchResults.map((result) => (
-                <button
-                  key={result.place_id}
-                  onClick={() => selectSearchResult(result)}
-                  className="w-full text-left px-4 py-3 hover:bg-primary/10 rounded-lg transition-colors"
-                >
-                  <div className="flex items-start gap-2">
-                    <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">{result.display_name}</span>
-                  </div>
-                </button>
-              ))}
+              {loading && searchTerm.trim() ? (
+                <div className="flex justify-center items-center py-4">
+                  <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+              ) : searchResults.length > 0 ? (
+                searchResults.map((result) => (
+                  <button
+                    key={result.place_id}
+                    onClick={() => selectSearchResult(result)}
+                    className="w-full text-left px-4 py-3 hover:bg-primary/10 rounded-lg transition-colors"
+                  >
+                    <div className="flex items-start gap-2">
+                      <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <span className="text-sm">{result.display_name}</span>
+                    </div>
+                  </button>
+                ))
+              ) : searchTerm.trim() ? (
+                <p className="text-center text-sm text-muted-foreground py-4">
+                  No se encontraron lugares con ese nombre.
+                </p>
+              ) : (
+                <p className="text-center text-sm text-muted-foreground py-4">
+                  Comienza a escribir para buscar lugares.
+                </p>
+              )}
             </Card>
           )}
         </div>

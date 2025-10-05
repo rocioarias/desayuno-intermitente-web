@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2, Info } from "lucide-react";
+import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MapWeatherSearch from "./MapWeatherSearch";
 
@@ -144,17 +143,16 @@ const WeatherSearch = () => {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
-  const [showInfoDialog, setShowInfoDialog] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // 1. Crear la referencia para la card de resultados
+  const weatherCardRef = useRef<HTMLDivElement>(null);
 
-  // Mostrar el popup informativo al cargar la página (solo la primera vez)
+  // 2. Efecto para hacer scroll cuando se actualiza el clima
   useEffect(() => {
-    const hasSeenInfo = localStorage.getItem("weatherSearchInfoSeen");
-    if (!hasSeenInfo) {
-      setShowInfoDialog(true);
-      localStorage.setItem("weatherSearchInfoSeen", "true");
+    if (weather && weatherCardRef.current) {
+      weatherCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-  }, []);
+  }, [weather]);
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -183,17 +181,7 @@ const WeatherSearch = () => {
         const data = await response.json();
         
         if (data.results) {
-          // Priorizar ciudades de Argentina
-          const sortedResults = data.results.sort((a: City, b: City) => {
-            const aIsArgentina = a.country === "Argentina" || a.country === "AR";
-            const bIsArgentina = b.country === "Argentina" || b.country === "AR";
-            
-            if (aIsArgentina && !bIsArgentina) return -1;
-            if (!aIsArgentina && bIsArgentina) return 1;
-            return 0;
-          });
-          
-          setCities(sortedResults);
+          setCities(data.results);
           setShowDropdown(true);
         } else {
           setCities([]);
@@ -248,6 +236,7 @@ const WeatherSearch = () => {
         description: "No se pudo obtener el clima",
         variant: "destructive",
       });
+      setWeather(null); // Limpiar el clima en caso de error
     } finally {
       setLoading(false);
     }
@@ -262,6 +251,9 @@ const WeatherSearch = () => {
       );
       const data = await response.json();
       
+      // Intentar obtener el nombre completo para la visualización del clima
+      const weatherCityName = placeName || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
+      
       setWeather({
         temperature: Math.round(data.current.temperature_2m),
         temperatureMin: Math.round(data.daily.temperature_2m_min[0]),
@@ -269,13 +261,16 @@ const WeatherSearch = () => {
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
-        city: placeName || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`,
+        city: weatherCityName,
         country: "Coordenadas",
       });
       
+      // Limpiar búsqueda si se usa el mapa
+      setSearchTerm("");
+      
       toast({
         title: "¡Clima actualizado!",
-        description: `Datos del clima en ${placeName || "la ubicación seleccionada"}`,
+        description: `Datos del clima en ${weatherCityName}`,
       });
     } catch (error) {
       console.error("Error obteniendo clima:", error);
@@ -284,6 +279,7 @@ const WeatherSearch = () => {
         description: "No se pudo obtener el clima para esas coordenadas",
         variant: "destructive",
       });
+      setWeather(null); // Limpiar el clima en caso de error
     } finally {
       setLoading(false);
     }
@@ -293,49 +289,15 @@ const WeatherSearch = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8">
-      {/* Dialog informativo */}
-      <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Info className="w-5 h-5 text-primary" />
-              Información sobre el buscador
-            </DialogTitle>
-            <DialogDescription className="text-base pt-4">
-              Debido a que hay lugares que no se encuentran de manera rápida en el buscador, por favor usá el buscador por mapa para encontrar la ciudad exacta en caso de no estar en el buscador de clima. Hacé click en el lugar y te dará la temperatura en ese lugar.
-            </DialogDescription>
-          </DialogHeader>
-          <Button onClick={() => setShowInfoDialog(false)} className="w-full">
-            Entendido
-          </Button>
-        </DialogContent>
-      </Dialog>
-
-      {/* Buscador */}
+      {/* Buscador y Mapa */}
       <div className="relative" ref={dropdownRef}>
-        <div className="relative flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-            <Input
-              type="text"
-              placeholder="Buscá tu ciudad... (ej: Buenos Aires, Córdoba, Rosario)"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-6 text-lg bg-card/50 backdrop-blur border-primary/20 focus:border-primary"
-            />
-          </div>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowInfoDialog(true)}
-            className="h-auto px-3 bg-card/50 border-primary/20 hover:bg-primary/10"
-            title="Información sobre el buscador"
-          >
-            <Info className="w-5 h-5" />
-          </Button>
+        <div className="relative">
+          {/* Aquí iría la barra de búsqueda de ciudades si se mantuviera */}
+          {/* Pero para simplificar con el mapa, lo dejamos centrado en el mapa */}
+          <MapWeatherSearch onLocationSelect={fetchWeatherByCoordinates} />
         </div>
 
-        {/* Dropdown de ciudades */}
+        {/* Dropdown de ciudades (Mantenido por si se agrega la barra de búsqueda superior) */}
         {showDropdown && cities.length > 0 && (
           <Card className="absolute top-full mt-2 w-full z-50 p-2 bg-card/95 backdrop-blur border-primary/20">
             {cities.map((city) => (
@@ -357,71 +319,73 @@ const WeatherSearch = () => {
         )}
       </div>
 
-      {/* Resultado del clima */}
-      {loading && (
-        <Card className="p-8 text-center">
-          <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
-          <p className="mt-4 text-lg">Consultando el oráculo meteorológico...</p>
-        </Card>
-      )}
+      {/* Resultado del clima - 3. Aplicar la referencia al div contenedor */}
+      <div ref={weatherCardRef}>
+        {loading && (
+          <Card className="p-8 text-center">
+            <Loader2 className="w-12 h-12 mx-auto animate-spin text-primary" />
+            <p className="mt-4 text-lg">Consultando el oráculo meteorológico...</p>
+          </Card>
+        )}
 
-      {weather && !loading && (
-        <Card className="overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10">
-          <div className="p-8">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h3 className="font-display text-4xl  mb-2">
-                  {weather.city}
-                </h3>
-                <p className="text-muted-foreground text-lg">
-                  {weather.admin1 && `${weather.admin1}, `}{weather.country}
+        {weather && !loading && (
+          <Card className="overflow-hidden border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-secondary/10">
+            <div className="p-8">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <h3 className="font-display text-4xl  mb-2">
+                    {weather.city}
+                  </h3>
+                  <p className="text-muted-foreground text-lg">
+                    {weather.admin1 && `${weather.admin1}, `}{weather.country}
+                  </p>
+                </div>
+                <WeatherIcon className="w-20 h-20 text-primary" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="flex items-center gap-3">
+                  <Thermometer className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-2xl font-bold">
+                      <span className="text-blue-500">{weather.temperatureMin}°</span>
+                      <span className="text-muted-foreground mx-2">/</span>
+                      <span className="text-red-500">{weather.temperatureMax}°</span>
+                    </p>
+                    <p className="text-sm text-muted-foreground">Mín / Máx de hoy</p>
+                    <p className="text-lg font-medium mt-1">Actual: {weather.temperature}°</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Wind className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-2xl font-semibold ">{weather.windspeed} km/h</p>
+                    <p className="text-sm text-muted-foreground">Viento</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Droplets className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-2xl font-semibold">{weather.humidity}%</p>
+                    <p className="text-sm text-muted-foreground">Humedad</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-6">
+                <p className="text-xl font-semibold  mb-2">
+                  {weatherCodeToCondition(weather.weathercode)}
+                </p>
+                <p className="text-lg text-muted-foreground">
+                  {getFedeComment(weather.temperature, weather.weathercode)}
                 </p>
               </div>
-              <WeatherIcon className="w-20 h-20 text-primary" />
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="flex items-center gap-3">
-                <Thermometer className="w-8 h-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-bold">
-                    <span className="text-blue-500">{weather.temperatureMin}°</span>
-                    <span className="text-muted-foreground mx-2">/</span>
-                    <span className="text-red-500">{weather.temperatureMax}°</span>
-                  </p>
-                  <p className="text-sm text-muted-foreground">Mín / Máx de hoy</p>
-                  <p className="text-lg font-medium mt-1">Actual: {weather.temperature}°</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Wind className="w-8 h-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-semibold ">{weather.windspeed} km/h</p>
-                  <p className="text-sm text-muted-foreground">Viento</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Droplets className="w-8 h-8 text-primary" />
-                <div>
-                  <p className="text-2xl font-semibold">{weather.humidity}%</p>
-                  <p className="text-sm text-muted-foreground">Humedad</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-border pt-6">
-              <p className="text-xl font-semibold  mb-2">
-                {weatherCodeToCondition(weather.weathercode)}
-              </p>
-              <p className="text-lg text-muted-foreground">
-                {searchTerm == "" ? getFedeComment(weather.temperature, weather.weathercode) : null}
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
+          </Card>
+        )}
+      </div>
 
       {/* Ciudades destacadas */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -442,9 +406,6 @@ const WeatherSearch = () => {
           </Button>
         ))}
       </div>
-
-      {/* Búsqueda por mapa como alternativa */}
-      <MapWeatherSearch onLocationSelect={fetchWeatherByCoordinates} />
     </div>
   );
 };
