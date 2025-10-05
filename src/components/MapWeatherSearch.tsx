@@ -3,11 +3,13 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { MapPin, Search, Loader2 } from "lucide-react";
+import { MapPin, Search, Loader2, Wind, CloudRain, Map } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "@/styles/leaflet-overrides.css";
+
+type MapLayer = "normal" | "wind" | "rain";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -43,6 +45,7 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [mapLayer, setMapLayer] = useState<MapLayer>("normal");
   const mapRef = useRef<L.Map | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
@@ -233,6 +236,37 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
           )}
         </div>
         
+        {/* Botones de control de capas */}
+        <div className="flex gap-2 justify-center">
+          <Button
+            variant={mapLayer === "normal" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setMapLayer("normal")}
+            className="flex items-center gap-2"
+          >
+            <Map className="w-4 h-4" />
+            Mapa Normal
+          </Button>
+          <Button
+            variant={mapLayer === "wind" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setMapLayer("wind")}
+            className="flex items-center gap-2"
+          >
+            <Wind className="w-4 h-4" />
+            Vientos
+          </Button>
+          <Button
+            variant={mapLayer === "rain" ? "default" : "outline"}
+            size="sm"
+            onClick={() => setMapLayer("rain")}
+            className="flex items-center gap-2"
+          >
+            <CloudRain className="w-4 h-4" />
+            Lluvias
+          </Button>
+        </div>
+
         {/* Mapa */}
         <div className="h-[400px] rounded-lg overflow-hidden border border-border relative">
           <MapContainer
@@ -246,6 +280,20 @@ const MapWeatherSearch = ({ onLocationSelect }: MapWeatherSearchProps) => {
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
+            {mapLayer === "wind" && (
+              <TileLayer
+                attribution='Wind data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
+                url="https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=439d4b804bc8187953eb36d2a8c26a02"
+                opacity={0.6}
+              />
+            )}
+            {mapLayer === "rain" && (
+              <TileLayer
+                attribution='Precipitation data &copy; <a href="https://openweathermap.org">OpenWeatherMap</a>'
+                url="https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=439d4b804bc8187953eb36d2a8c26a02"
+                opacity={0.6}
+              />
+            )}
             <MapClickHandler onLocationClick={handleMapClick} />
             {position && <Marker position={position} />}
           </MapContainer>
