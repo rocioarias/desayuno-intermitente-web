@@ -172,7 +172,17 @@ const WeatherSearch = () => {
         const data = await response.json();
         
         if (data.results) {
-          setCities(data.results);
+          // Priorizar ciudades de Argentina
+          const sortedResults = data.results.sort((a: City, b: City) => {
+            const aIsArgentina = a.country === "Argentina" || a.country === "AR";
+            const bIsArgentina = b.country === "Argentina" || b.country === "AR";
+            
+            if (aIsArgentina && !bIsArgentina) return -1;
+            if (!aIsArgentina && bIsArgentina) return 1;
+            return 0;
+          });
+          
+          setCities(sortedResults);
           setShowDropdown(true);
         } else {
           setCities([]);
