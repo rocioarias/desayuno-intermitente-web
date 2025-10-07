@@ -22,6 +22,7 @@ interface WeatherData {
   windspeed: number;
   humidity: number;
   weathercode: number;
+  rainProbability: number;
   city: string;
   country: string;
   admin1?: string;
@@ -205,7 +206,7 @@ const WeatherSearch = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`
       );
       const data = await response.json();
       
@@ -216,6 +217,7 @@ const WeatherSearch = () => {
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
+        rainProbability: data.daily.precipitation_probability_max[0] || 0,
         city: city.name,
         country: city.country,
         admin1: city.admin1,
@@ -247,7 +249,7 @@ const WeatherSearch = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`
       );
       const data = await response.json();
       
@@ -261,6 +263,7 @@ const WeatherSearch = () => {
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
+        rainProbability: data.daily.precipitation_probability_max[0] || 0,
         city: weatherCityName,
         country: "Coordenadas",
       });
@@ -343,7 +346,7 @@ const WeatherSearch = () => {
                 <WeatherIcon className="w-20 h-20 text-primary" />
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                 <div className="flex items-center gap-3">
                   <Thermometer className="w-8 h-8 text-primary" />
                   <div>
@@ -370,6 +373,14 @@ const WeatherSearch = () => {
                   <div>
                     <p className="text-2xl font-semibold">{weather.humidity}%</p>
                     <p className="text-sm text-muted-foreground">Humedad</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <CloudRain className="w-8 h-8 text-primary" />
+                  <div>
+                    <p className="text-2xl font-semibold">{weather.rainProbability}%</p>
+                    <p className="text-sm text-muted-foreground">Prob. de lluvia</p>
                   </div>
                 </div>
               </div>
