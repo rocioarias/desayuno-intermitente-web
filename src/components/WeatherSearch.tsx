@@ -217,7 +217,7 @@ const WeatherSearch = () => {
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
-        rainProbability: data.daily.precipitation_probability_max[0] || 0,
+        rainProbability: data.daily.rain_sum,
         city: city.name,
         country: city.country,
         admin1: city.admin1,
