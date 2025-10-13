@@ -26,6 +26,12 @@ interface WeatherData {
   city: string;
   country: string;
   admin1?: string;
+  weeklyData?: {
+    dates: string[];
+    tempMin: number[];
+    tempMax: number[];
+    rainProbability: number[];
+  };
 }
 
 const weatherCodeToIcon = (code: number) => {
@@ -206,7 +212,7 @@ const WeatherSearch = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`
       );
       const data = await response.json();
       
@@ -217,10 +223,16 @@ const WeatherSearch = () => {
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
-        rainProbability: data.daily.rain_sum,
+        rainProbability: data.daily.precipitation_probability_max[0] || 0,
         city: city.name,
         country: city.country,
         admin1: city.admin1,
+        weeklyData: {
+          dates: data.daily.time,
+          tempMin: data.daily.temperature_2m_min.map((t: number) => Math.round(t)),
+          tempMax: data.daily.temperature_2m_max.map((t: number) => Math.round(t)),
+          rainProbability: data.daily.precipitation_probability_max,
+        },
       });
       
       setSelectedCity(city);
@@ -249,7 +261,7 @@ const WeatherSearch = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto`
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`
       );
       const data = await response.json();
       
@@ -266,6 +278,12 @@ const WeatherSearch = () => {
         rainProbability: data.daily.precipitation_probability_max[0] || 0,
         city: weatherCityName,
         country: "Coordenadas",
+        weeklyData: {
+          dates: data.daily.time,
+          tempMin: data.daily.temperature_2m_min.map((t: number) => Math.round(t)),
+          tempMax: data.daily.temperature_2m_max.map((t: number) => Math.round(t)),
+          rainProbability: data.daily.precipitation_probability_max,
+        },
       });
       
       // Limpiar búsqueda si se usa el mapa
@@ -392,6 +410,43 @@ const WeatherSearch = () => {
                 <p className="text-lg text-muted-foreground">
                   {getFedeComment(weather.temperature, weather.weathercode)}
                 </p>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {weather && weather.weeklyData && !loading && (
+          <Card className="overflow-hidden border-2 border-primary/20 bg-card">
+            <div className="p-6">
+              <h4 className="font-display text-2xl mb-4">Pronóstico Semanal</h4>
+              <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+                {weather.weeklyData.dates.map((date, index) => {
+                  const dateObj = new Date(date);
+                  const dayName = dateObj.toLocaleDateString('es-AR', { weekday: 'short' });
+                  const dayNumber = dateObj.getDate();
+                  
+                  return (
+                    <div key={date} className="flex flex-col items-center p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
+                      <p className="text-sm font-semibold capitalize">{dayName}</p>
+                      <p className="text-xs text-muted-foreground mb-2">{dayNumber}</p>
+                      
+                      <div className="flex items-center gap-1 mb-1">
+                        <Thermometer className="w-4 h-4 text-red-500" />
+                        <span className="text-sm font-medium">{weather.weeklyData.tempMax[index]}°</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1 mb-1">
+                        <Thermometer className="w-4 h-4 text-blue-500" />
+                        <span className="text-sm font-medium">{weather.weeklyData.tempMin[index]}°</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <CloudRain className="w-4 h-4 text-primary" />
+                        <span className="text-xs">{weather.weeklyData.rainProbability[index]}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </Card>
