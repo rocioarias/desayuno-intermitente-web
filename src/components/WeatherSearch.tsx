@@ -207,14 +207,32 @@ const WeatherSearch = () => {
     return () => clearTimeout(debounceTimer);
   }, [searchTerm]);
 
-  // Obtener clima
-  const fetchWeather = async (city: City) => {
-    setLoading(true);
-    try {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`
-      );
-      const data = await response.json();
+const getWeekRange = (date: Date) => {
+  const current = new Date(date);
+  const dayOfWeek = current.getDay();
+  const diffToMonday = dayOfWeek === 0 ? -7 : 1 - dayOfWeek;
+
+  const monday = new Date(current);
+  monday.setDate(current.getDate() + diffToMonday);
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const format = (d: Date) => d.toISOString().split('T')[0];
+
+  return { start: format(monday), end: format(sunday) };
+};
+
+const fetchWeather = async (city: City) => {
+  setLoading(true);
+  try {
+    const today = new Date();
+    const { start, end } = getWeekRange(today);
+
+    const response = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${city.latitude}&longitude=${city.longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${start}&end_date=${end}`
+    );
+    const data = await response.json();
       
       setWeather({
         temperature: Math.round(data.current.temperature_2m),
@@ -260,9 +278,10 @@ const WeatherSearch = () => {
   const fetchWeatherByCoordinates = async (latitude: number, longitude: number, placeName?: string) => {
     setLoading(true);
     try {
-      const response = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=7`
-      );
+    const { start, end } = getWeekRange(new Date());
+    const response = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${start}&end_date=${end}`
+    );
       const data = await response.json();
       
       // Intentar obtener el nombre completo para la visualización del clima
@@ -313,12 +332,9 @@ const WeatherSearch = () => {
       {/* Buscador y Mapa */}
       <div className="relative" ref={dropdownRef}>
         <div className="relative">
-          {/* Aquí iría la barra de búsqueda de ciudades si se mantuviera */}
-          {/* Pero para simplificar con el mapa, lo dejamos centrado en el mapa */}
           <MapWeatherSearch onLocationSelect={fetchWeatherByCoordinates} />
         </div>
 
-        {/* Dropdown de ciudades (Mantenido por si se agrega la barra de búsqueda superior) */}
         {showDropdown && cities.length > 0 && (
           <Card className="absolute top-full mt-2 w-full z-50 p-2 bg-card/95 backdrop-blur border-primary/20">
             {cities.map((city) => (
@@ -412,68 +428,52 @@ const WeatherSearch = () => {
                 </p>
               </div>
             </div>
+            {weather && weather.weeklyData && !loading && (
+
+    <div className="p-6">
+      <h4 className="font-display text-2xl mb-4">
+        Pronóstico de la Semana 
+      </h4>
+      <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
+        {weather.weeklyData.dates.map((date, index) => {
+          const dateObj = new Date(date + 'T12:00:00');
+          const dayName = dateObj.toLocaleDateString('es-AR', { weekday: 'short' });
+          const dayNumber = dateObj.getDate();
+
+          return (
+            <div
+              key={date}
+              className="flex flex-col items-center p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors"
+            >
+              <p className="text-sm font-semibold capitalize">{dayName}</p>
+              <p className="text-xs text-muted-foreground mb-2">{dayNumber}</p>
+
+              <div className="flex items-center gap-1 mb-1">
+                <Thermometer className="w-4 h-4 text-red-500" />
+                <span className="text-sm font-medium">{weather.weeklyData.tempMax[index]}°</span>
+              </div>
+
+              <div className="flex items-center gap-1 mb-1">
+                <Thermometer className="w-4 h-4 text-blue-500" />
+                <span className="text-sm font-medium">{weather.weeklyData.tempMin[index]}°</span>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <CloudRain className="w-4 h-4 text-primary" />
+                <span className="text-xs">{weather.weeklyData.rainProbability[index]}%</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+
+)}
+
           </Card>
         )}
 
-        {weather && weather.weeklyData && !loading && (
-          <Card className="overflow-hidden border-2 border-primary/20 bg-card">
-            <div className="p-6">
-              <h4 className="font-display text-2xl mb-4">Pronóstico del Próximo Fin de Semana</h4>
-              <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
-                {(() => {
-                  // Buscar el índice del próximo sábado en el array de fechas
-                  let saturdayIndex = -1;
-                  for (let i = 0; i < weather.weeklyData!.dates.length; i++) {
-                    const dateObj = new Date(weather.weeklyData!.dates[i] + 'T12:00:00');
-                    const dayOfWeek = dateObj.getDay();
-                    
-                    // Si es sábado (6) y es futuro (i > 0) o es hoy pero queremos el siguiente
-                    if (dayOfWeek === 6 && i > 0) {
-                      saturdayIndex = i;
-                      break;
-                    }
-                  }
-                  
-                  // Si no encontramos sábado, mostrar mensaje
-                  if (saturdayIndex === -1) {
-                    return <p className="text-muted-foreground">No hay datos disponibles para el próximo fin de semana</p>;
-                  }
-                  
-                  const daysToShow = Math.min(7, weather.weeklyData!.dates.length - saturdayIndex);
-                  
-                  return weather.weeklyData!.dates.slice(saturdayIndex, saturdayIndex + daysToShow).map((date, arrayIndex) => {
-                    const index = saturdayIndex + arrayIndex;
-                    const dateObj = new Date(date + 'T12:00:00');
-                    const dayName = dateObj.toLocaleDateString('es-AR', { weekday: 'short' });
-                    const dayNumber = dateObj.getDate();
-                    
-                    return (
-                      <div key={date} className="flex flex-col items-center p-3 rounded-lg bg-primary/5 hover:bg-primary/10 transition-colors">
-                        <p className="text-sm font-semibold capitalize">{dayName}</p>
-                        <p className="text-xs text-muted-foreground mb-2">{dayNumber}</p>
-                        
-                        <div className="flex items-center gap-1 mb-1">
-                          <Thermometer className="w-4 h-4 text-red-500" />
-                          <span className="text-sm font-medium">{weather.weeklyData!.tempMax[index]}°</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-1 mb-1">
-                          <Thermometer className="w-4 h-4 text-blue-500" />
-                          <span className="text-sm font-medium">{weather.weeklyData!.tempMin[index]}°</span>
-                        </div>
-                        
-                        <div className="flex items-center gap-1">
-                          <CloudRain className="w-4 h-4 text-primary" />
-                          <span className="text-xs">{weather.weeklyData!.rainProbability[index]}%</span>
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
-              </div>
-            </div>
-          </Card>
-        )}
+        
       </div>
 
       {/* Ciudades destacadas 
