@@ -421,19 +421,29 @@ const WeatherSearch = () => {
               <h4 className="font-display text-2xl mb-4">Pronóstico del Próximo Fin de Semana</h4>
               <div className="grid grid-cols-2 md:grid-cols-7 gap-4">
                 {(() => {
-                  const today = new Date();
-                  const currentDay = today.getDay(); // 0 = domingo, 6 = sábado
+                  // Buscar el índice del próximo sábado en el array de fechas
+                  let saturdayIndex = -1;
+                  for (let i = 0; i < weather.weeklyData!.dates.length; i++) {
+                    const dateObj = new Date(weather.weeklyData!.dates[i] + 'T12:00:00');
+                    const dayOfWeek = dateObj.getDay();
+                    
+                    // Si es sábado (6) y es futuro (i > 0) o es hoy pero queremos el siguiente
+                    if (dayOfWeek === 6 && i > 0) {
+                      saturdayIndex = i;
+                      break;
+                    }
+                  }
                   
-                  // Calcular días hasta el próximo sábado
-                  let daysUntilSaturday = (6 - currentDay + 7) % 7;
-                  if (daysUntilSaturday === 0) daysUntilSaturday = 7; // Si hoy es sábado, usar el próximo
+                  // Si no encontramos sábado, mostrar mensaje
+                  if (saturdayIndex === -1) {
+                    return <p className="text-muted-foreground">No hay datos disponibles para el próximo fin de semana</p>;
+                  }
                   
-                  const startIndex = daysUntilSaturday;
-                  const daysToShow = Math.min(7, weather.weeklyData!.dates.length - startIndex);
+                  const daysToShow = Math.min(7, weather.weeklyData!.dates.length - saturdayIndex);
                   
-                  return weather.weeklyData!.dates.slice(startIndex, startIndex + daysToShow).map((date, arrayIndex) => {
-                    const index = startIndex + arrayIndex;
-                    const dateObj = new Date(date);
+                  return weather.weeklyData!.dates.slice(saturdayIndex, saturdayIndex + daysToShow).map((date, arrayIndex) => {
+                    const index = saturdayIndex + arrayIndex;
+                    const dateObj = new Date(date + 'T12:00:00');
                     const dayName = dateObj.toLocaleDateString('es-AR', { weekday: 'short' });
                     const dayNumber = dateObj.getDate();
                     
