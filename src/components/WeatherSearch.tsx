@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MapWeatherSearch from "./MapWeatherSearch";
+import chafingAlert from "@/assets/chafing-alert.png";
 
 interface City {
   id: number;
@@ -423,9 +424,18 @@ const fetchWeather = async (city: City) => {
                 <p className="text-xl font-semibold  mb-2">
                   {weatherCodeToCondition(weather.weathercode)}
                 </p>
-                <p className="text-lg text-muted-foreground">
-                  {getFedeComment(weather.temperature, weather.weathercode)}
-                </p>
+                {weather.temperatureMax >= 25 && weather.humidity > 80 ? (
+                  <div className="flex items-center gap-3 bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+                    <img src={chafingAlert} alt="Chafing Alert" className="w-16 h-16 object-contain" />
+                    <p className="text-lg font-bold text-destructive">
+                      ⚠️ CHAFING ALERT! High heat and humidity combination detected!
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-lg text-muted-foreground">
+                    {getFedeComment(weather.temperature, weather.weathercode)}
+                  </p>
+                )}
               </div>
             </div>
             {weather && weather.weeklyData && !loading && (
