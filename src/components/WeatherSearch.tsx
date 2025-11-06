@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Search, MapPin, Thermometer, Wind, Droplets, Cloud, Sun, CloudRain, CloudSnow, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import MapWeatherSearch from "./MapWeatherSearch";
-import chafingAlert from "@/assets/chafing-alert.png";
+import chafingAlert from "@/assets/fedeImage.jpg";
 
 interface City {
   id: number;
@@ -375,7 +375,9 @@ const fetchWeather = async (city: City) => {
                     {weather.city}
                   </h3>
                   <p className="text-muted-foreground text-lg">
-                    {weather.admin1 && `${weather.admin1}, `}{weather.country}
+                    {weather.admin1 && `${weather.admin1}, `}{<p className="text-xl font-semibold  mb-2">
+                  {weatherCodeToCondition(weather.weathercode)}
+                </p>}
                   </p>
                 </div>
                 <WeatherIcon className="w-20 h-20 text-primary" />
@@ -421,21 +423,15 @@ const fetchWeather = async (city: City) => {
               </div>
 
               <div className="border-t border-border pt-6">
-                <p className="text-xl font-semibold  mb-2">
-                  {weatherCodeToCondition(weather.weathercode)}
-                </p>
-                {weather.temperatureMax >= 25 && weather.humidity > 80 ? (
+                
+                {weather.temperatureMax >= 25 && weather.humidity > 50 ? (
                   <div className="flex items-center gap-3 bg-destructive/10 border border-destructive/30 rounded-lg p-4">
                     <img src={chafingAlert} alt="Chafing Alert" className="w-16 h-16 object-contain" />
                     <p className="text-lg font-bold text-destructive">
-                      ⚠️ CHAFING ALERT! High heat and humidity combination detected!
+                      ⚠️ ALERTA DU PASPADURA! SE RECOMIENDA USAR TALQUITO Y DESHODORANTE
                     </p>
-                  </div>
-                ) : (
-                  <p className="text-lg text-muted-foreground">
-                    {getFedeComment(weather.temperature, weather.weathercode)}
-                  </p>
-                )}
+                  </div>  
+                ) :(<p></p>)}
               </div>
             </div>
             {weather && weather.weeklyData && !loading && (
