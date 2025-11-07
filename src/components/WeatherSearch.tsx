@@ -278,24 +278,29 @@ const fetchWeather = async (city: City) => {
   // Obtener clima por coordenadas (para el mapa)
   const fetchWeatherByCoordinates = async (latitude: number, longitude: number, placeName?: string) => {
     setLoading(true);
+    
     try {
     const { start, end } = getWeekRange(new Date());
     const response = await fetch(
       `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${start}&end_date=${end}`
     );
       const data = await response.json();
-      
+      // Encontrar el índice del día actual dentro del array daily.time
+const todayStr = new Date().toISOString().split("T")[0];
+const todayIndex = data.daily.time.findIndex((d: string) => d === todayStr);
+
+// Si no lo encuentra (por zona horaria, etc.), usar el último índice disponible
+const validIndex = todayIndex !== -1 ? todayIndex : 0;
       // Intentar obtener el nombre completo para la visualización del clima
       const weatherCityName = placeName || `${latitude.toFixed(2)}, ${longitude.toFixed(2)}`;
-      
       setWeather({
         temperature: Math.round(data.current.temperature_2m),
-        temperatureMin: Math.round(data.daily.temperature_2m_min[0]),
-        temperatureMax: Math.round(data.daily.temperature_2m_max[0]),
+        temperatureMin: Math.round(data.daily.temperature_2m_min[validIndex]),
+        temperatureMax: Math.round(data.daily.temperature_2m_max[validIndex]),
         windspeed: Math.round(data.current.wind_speed_10m),
         humidity: data.current.relative_humidity_2m,
         weathercode: data.current.weather_code,
-        rainProbability: data.daily.precipitation_probability_max[0] || 0,
+        rainProbability: data.daily.precipitation_probability_max[validIndex] || 0,
         city: weatherCityName,
         country: "Coordenadas",
         weeklyData: {
@@ -305,7 +310,6 @@ const fetchWeather = async (city: City) => {
           rainProbability: data.daily.precipitation_probability_max,
         },
       });
-      
       // Limpiar búsqueda si se usa el mapa
       setSearchTerm("");
       
@@ -428,7 +432,7 @@ const fetchWeather = async (city: City) => {
                   <div className="flex items-center gap-3 bg-destructive/10 border border-destructive/30 rounded-lg p-4">
                     <img src={chafingAlert} alt="Chafing Alert" className="w-16 h-16 object-contain" />
                     <p className="text-lg font-bold text-destructive">
-                      ⚠️ ALERTA DU PASPADURA! SE RECOMIENDA USAR TALQUITO Y DESHODORANTE
+                      ⚠️ ALERTA DU PASPADURA! SE RECOMIENDA USAR TALQUITO Y DESODORANTE
                     </p>
                   </div>  
                 ) :(<p></p>)}
